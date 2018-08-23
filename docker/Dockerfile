@@ -1,12 +1,6 @@
 FROM golang as builder
 
-RUN go get -u github.com/pressly/sup/cmd/sup
-
-WORKDIR /go/src/github.com/pressly/sup/cmd/sup
-
-COPY sup .
-
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o sup .
+RUN CGO_ENABLED=0 GOOS=linux go get -u github.com/pressly/sup/cmd/sup
 
 FROM alpine:3.7
 
@@ -36,7 +30,7 @@ WORKDIR /home/app
 
 USER app
 
-COPY --from=builder github.com/pressly/sup/cmd/sup    .
+COPY --from=builder /go/bin/  .
 
 # Populate example here - i.e. "cat", "sha512sum" or "node index.js"
 ENV fprocess="xargs sup"
