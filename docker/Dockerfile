@@ -1,3 +1,13 @@
+FROM golang as builder
+
+RUN go get -u github.com/pressly/sup/cmd/sup
+
+WORKDIR /go/src/github.com/pressly/sup/cmd/sup
+
+COPY sup .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o sup .
+
 FROM alpine:3.7
 
 # 1. Use any image as your base image, or "scratch"
@@ -26,8 +36,10 @@ WORKDIR /home/app
 
 USER app
 
+COPY --from=builder github.com/pressly/sup/cmd/sup    .
+
 # Populate example here - i.e. "cat", "sha512sum" or "node index.js"
-ENV fprocess="cat"
+ENV fprocess="xargs sup"
 # Set to true to see request in function logs
 ENV write_debug="false"
 
